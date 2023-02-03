@@ -1,0 +1,51 @@
+import mysql.connector
+
+def login_or_register():
+    # Connect to the MySQL database
+    conn = mysql.connector.connect(user='user', password='password', host='host', database='database')
+    cursor = conn.cursor()
+    
+    # Ask the user to log in or register
+    print("1. Log in")
+    print("2. Register")
+    choice = input("Enter your choice: ")
+    
+    if choice == '1':
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+        
+        # Check if the user exists in the database
+        query = "SELECT * FROM users WHERE username = %s AND password = %s"
+        cursor.execute(query, (username, password))
+        user = cursor.fetchone()
+        
+        if user:
+            print("Welcome, " + user[1])
+        else:
+            print("Invalid username or password.")
+    elif choice == '2':
+        username = input("Enter a username: ")
+        password = input("Enter a password: ")
+        
+        # Check if the username is already taken
+        query = "SELECT * FROM users WHERE username = %s"
+        cursor.execute(query, (username,))
+        user = cursor.fetchone()
+        
+        if user:
+            print("Username is already taken.")
+        else:
+            # Insert the new user into the database
+            query = "INSERT INTO users (username, password) VALUES (%s, %s)"
+            cursor.execute(query, (username, password))
+            conn.commit()
+            print("Registration successful.")
+    else:
+        print("Invalid choice.")
+    
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+if __name__ == '__main__':
+    login_or_register()
